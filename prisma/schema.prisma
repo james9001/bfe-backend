@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model PreservationTarget {
+  id                              Int                     @id @default(autoincrement())
+  type                            String
+  backupExecutions                BackupExecution[]
+  fullPath                        String
+  createdTime                     String?
+  updatedTime                     String?
+  priorityLabel                   String?
+  queuedBackupExecutions          QueuedBackupExecution[]
+  category                        String?
+  name                            String?
+}
+
+model BackupExecution {
+  id                              Int                     @id @default(autoincrement())
+  preservationTargetId            Int
+  preservationTarget              PreservationTarget      @relation(fields: [preservationTargetId], references: [id])
+  artefactName                    String
+  backupSecrets                   BackupSecret[]
+  uploadExecutions                UploadExecution[]
+  category                        String
+  checksum                        String
+  createdTime                     String?
+  updatedTime                     String?
+  beforeProcessBytes              String?
+  afterProcessBytes               String?
+}
+
+
+model QueuedBackupExecution {
+  id                              Int                     @id @default(autoincrement())
+  preservationTargetId            Int
+  preservationTarget              PreservationTarget      @relation(fields: [preservationTargetId], references: [id])
+  orderNumber                     Int
+  intendedBackupCategory          String
+  intendedUploadDestination       String
+  intendedUploadPath              String
+  secondIntendedUploadDestination String?
+  secondIntendedUploadPath        String?
+  actualBackupExecutionId         Int?
+  createdTime                     String?
+  updatedTime                     String?
+}
+
+model BackupSecret {
+  id                              Int                     @id @default(autoincrement())
+  backupExecutionId               Int
+  backupExecution                 BackupExecution         @relation(fields: [backupExecutionId], references: [id])
+  encryptionType                  String
+  orderNumber                     Int
+  secretValue                     String
+  createdTime                     String?
+  updatedTime                     String?
+}
+
+model UploadExecution {
+  id                              Int                     @id @default(autoincrement())
+  backupExecutionId               Int
+  backupExecution                 BackupExecution         @relation(fields: [backupExecutionId], references: [id])
+  status                          String
+  destination                     String
+  destinationPath                 String
+  createdTime                     String?
+  updatedTime                     String?
+  completedTime                   String?
+}
+
+model RestorationExecution {
+  id                              Int                     @id @default(autoincrement())
+  sourceDir                       String
+  destinationDir                  String
+  preservationTargetRevealed      String
+  category                        String
+  checksum                        String
+  restorationSecrets              RestorationSecret[]
+  createdTime                     String?
+  updatedTime                     String?
+}
+
+model RestorationSecret {
+  id                              Int                     @id @default(autoincrement())
+  restorationExecutionId          Int
+  restorationExecution            RestorationExecution    @relation(fields: [restorationExecutionId], references: [id])
+  encryptionType                  String
+  orderNumber                     Int
+  secretValue                     String
+  createdTime                     String?
+  updatedTime                     String?
+}
+
+//This is a singleton, so on      ly the ID of value 0 will be used, rest ignored
+model ApplicationState {
+  id                              Int                     @id @default(autoincrement())
+  status                          String
+  currentBackupExecutionId        Int?
+  currentUploadExecutionId        Int?
+  currentRestorationExecutionId   Int?
+  errorState                      Boolean                 @default(false)
+  automaticMode                   Boolean                 @default(false)
+}
+
+//another singleton
+model ApplicationSettings {
+  id                              Int                     @id @default(autoincrement())
+  rcloneBwLimit                   String
+  defaultUploadDestination        String
+  defaultUploadPath               String
+  defaultBackupCategory           String
+  defaultSecondUploadDestination  String?
+  defaultSecondUploadPath         String?
+  showOldDataPages                Boolean                 @default(false)
+  uploadToTwoTargets              Boolean                 @default(false)
+  backupCopyPhaseBwLimit          String?
+}
