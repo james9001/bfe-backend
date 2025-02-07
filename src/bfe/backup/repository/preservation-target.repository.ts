@@ -50,6 +50,12 @@ export class PreservationTargetRepository {
 		});
 	};
 
+	public deleteAll = async (): Promise<void> => {
+		return prismaWrapperService.executePrismaFunction(async () => {
+			await this.prisma.preservationTarget.deleteMany({});
+		});
+	};
+
 	public update = async (entity: PreservationTarget): Promise<void> => {
 		return prismaWrapperService.executePrismaFunction(async () => {
 			await this.prisma.preservationTarget.update({

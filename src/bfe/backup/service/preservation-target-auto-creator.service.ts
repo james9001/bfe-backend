@@ -56,6 +56,10 @@ export class PreservationTargetAutoCreatorService {
 			await preservationTargetRepository.create(newItem);
 		}
 	};
+
+	public oopsDeleteAllPreservationTargets = async (): Promise<void> => {
+		await preservationTargetRepository.deleteAll();
+	};
 }
 
 export const preservationTargetAutoCreatorService = new PreservationTargetAutoCreatorService();
