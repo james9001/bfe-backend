@@ -31,7 +31,7 @@ repos:
     rev: 0.2.1
     hooks:
       - id: yamlfmt
-        args: [--mapping, '2', --sequence, '4', --offset, '2']
+        args: [--mapping, '2', --sequence, '4', --offset, '2', --width, '200']
 
   - repo: https://github.com/james9001/pre-commit-hook-xmlformat
     rev: v1.0.0
